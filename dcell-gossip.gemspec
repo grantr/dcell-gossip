@@ -14,4 +14,6 @@ Gem::Specification.new do |gem|
   gem.name          = "dcell-gossip"
   gem.require_paths = ["lib"]
   gem.version       = Dcell::Gossip::VERSION
+
+  gem.add_runtime_dependency "celluloid-zmq"
 end
