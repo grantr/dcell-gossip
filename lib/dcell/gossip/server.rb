@@ -3,9 +3,8 @@ module DCell
     class Server
       include Celluloid::ZMQ
 
-      def initialize(gossiper)
-        @gossiper = gossiper
-        @addr   = gossiper.addr
+      def initialize(addr)
+        @addr   = addr
         @socket = PullSocket.new
 
         begin

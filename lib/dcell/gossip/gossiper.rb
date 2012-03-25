@@ -14,7 +14,7 @@ module DCell
         @gossip_interval = options[:gossip_interval] || DEFAULT_GOSSIP_INTERVAL
         @addr = addr
         @me = Peer.new(addr)
-        @server = Server.new(self)
+        @server = Server.new(addr)
         @peers = {}
         @seeds = options[:seeds] || [] #TODO create peers for seeds
         @scuttle = Scuttle.new(@me, @peers)
@@ -22,7 +22,7 @@ module DCell
 
       def run
         @me.beat_heart
-        gossip!
+        gossip
         @gossip_timer = after(gossip_interval) { run }
       end
 
@@ -71,7 +71,6 @@ module DCell
       end
 
       def gossip_to(peer)
-        digest = @scuttle.digest
         peer.send_message RequestMessage.new(digest)
       end
 
@@ -80,8 +79,16 @@ module DCell
         when RequestMessage
           deltas, requests, new_peers = @scuttle.scuttle(message.digest)
           handle_new_peers(new_peers)
+          FirstResponseMessage.new(requests, deltas)
+          #TODO reply: need source peer
         when FirstResponseMessage
+          @scuttle.update_known_state(message.updates)
+          SecondResponseMessage.new(@scuttle.fetch_deltas(message.digest))
+          #TODO reply: need source peer
+
+
         when SecondResponseMessage
+          @scuttle.update_known_state(message.updates)
         end
       end
 
@@ -93,85 +100,3 @@ module DCell
     end
   end
 end
-      #####
-
-    #   def make_random_gossip_digests
-    #     generation = 0
-    #     max_version = 0
-
-    #     #TODO shuffle
-    #     endpoint_state_map.to_a.shuffle.collect do |endpoint, state|
-    #       if state
-    #         generation = state.generation
-    #         max_version = max_endpoint_state_version(state)
-    #       end
-    #       Digest.new(endpoint, generation, max_version)
-    #     end
-    #   end
-
-    #   def gossip_to_live_member(digests)
-    #     if live_endpoints.empty?
-    #       false
-    #     else
-    #       send_gossip(digests, live_endpoints)
-    #     end
-    #   end
-
-    #   def gossip_to_unreachable_member(digests)
-    #     unless unreachable_endpoints.empty?
-    #       probability = unreachable_endpoints.size / (live_endpoints.size + 1).to_f
-    #       if rand < probability
-    #         send_gossip(digests, unreachable_endpoints)
-    #       end
-    #     end
-    #   end
-    # 
-    #   def gossip_to_seed(digests)
-    #     unless seeds.empty?
-    #       # return if it's just us
-    #       return if size == 1 && seeds.include?(DCell.addr)
-
-    #       if live_endpoints.empty?
-    #         send_gossip(digests, seeds)
-    #       else
-    #         probability = seeds.size / (live_endpoints.size + unreachable_endpoints.size).to_f
-    #         if rand <= probability
-    #           send_gossip(digests, seeds)
-    #         end
-    #       end
-    #     end
-    #   end
-
-    #   def send_gossip(digests, endpoints)
-    #     return false if endpoints.empty?
-
-    #     #TODO send_message
-    #     #TODO sample
-    #     send_message GossipDigestSynMessage.new(digests), endpoints.sample
-    #   end
-
-    #   def status_check
-    #     now = Time.now.to_f
-
-    #     endpoint_state_map.each do |endpoint, state|
-    #       next if endpoint == DCell.addr
-
-    #       failure_detector.interpret(endpoint)
-    #       if state
-    #         duration = state.timestamp
-    #         expire_time = get_expire_time_for_endpoint(endpoint)
-    #         
-    #         if !state.alive? && now > expire_time
-    #           evict_from_membership(endpoint)
-    #         end
-    #       end
-    #     end
-    #   end
-
-    #   def evict_from_membership(endpoint)
-    #     unreachable_endpoints.delete(endpoint)
-    #     endpoint_state_map.remove(endpoint)
-
-    # end
-#   end
-# end
