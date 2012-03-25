@@ -1,5 +1,6 @@
 module DCell
   module Gossip
+    #CASSANDRA
     class Digest
       attr_reader :endpoint, :generation, :max_version
 

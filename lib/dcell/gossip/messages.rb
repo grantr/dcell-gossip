@@ -1,29 +1,43 @@
 module DCell
   module Gossip
-    class GossipDigestSynMessage < DCell::Message
-      attr_reader :digests
+    class RequestMessage
+      attr_reader :digest
 
-      def initialize(digests)
+      def initialize(digest)
         super
-        @digests = digests
+        @digest = digest
+      end
+
+      def dispatch
+        deltas, requests, new_peers = 
+        puts "received #{self.class.name}: #{digest.inspect}"
       end
     end
 
-    class GossipDigestAckMessage < DCell::Message
-      attr_reader :digests, :endpoint_state
+    class FirstResponseMessage
+      attr_reader :digest, :updates
 
-      def initialize(digests, endpoint_state)
+      def initialize(digest, updates)
         super
-        @digests, @endpoint_state = digests, endpoint_state
+        @digest, @endpoint_stat = digest, updates
+      end
+
+      def dispatch
+        puts "received #{self.class.name}: #{digest.inspect} #{updates.inspect}"
       end
     end
     
-    class GossipDigestAck2Message < DCell::Message
-      attr_reader :endpoint_state
+    class SecondResponseMessage
+      attr_reader :updates
 
-      def initialize(endpoint_state)
+      def initialize(updates)
         super
-        @endpoint_state = endpoint_state
+        @updates = updates
+      end
+
+      def dispatch
+        puts "received #{self.class.name}: #{updates.inspect}"
+      end
     end
   end
 end
