@@ -1,6 +1,8 @@
 # Dcell::Gossip
 
-TODO: Write a gem description
+A gossip protocol intended for use by DCell. It allows DCell nodes to discover each other without an external service.
+
+This is a work in progress! It probably doesn't work yet.
 
 ## Installation
 
