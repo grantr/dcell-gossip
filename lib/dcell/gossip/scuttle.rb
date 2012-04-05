@@ -21,7 +21,7 @@ module DCell
 
       def scuttle(digest)
         deltas_with_peer = []
-        request = {}
+        requests = {}
         new_peers = []
         
         digest.each do |addr, digest_version|
@@ -39,7 +39,7 @@ module DCell
         end
 
         #TODO what is this line doing?        
-        deltas_with_peer.sort_by! { |delta| -delta[1] }
+        deltas_with_peer.sort_by! { |delta| -delta[1].size }
 
         #TODO this should really be building objects not hashes and arrays
         deltas = []

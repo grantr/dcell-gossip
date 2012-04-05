@@ -1,29 +1,30 @@
 module DCell
   module Gossip
     class RequestMessage
-      attr_reader :digest
+      attr_reader :endpoint, :digest
 
-      def initialize(digest)
-        super
+      def initialize(endpoint, digest)
+        @endpoint = endpoint 
         @digest = digest
       end
 
       def dispatch
-        deltas, requests, new_peers = 
-        puts "received #{self.class.name}: #{digest.inspect}"
+        #puts "received #{self.class.name}: #{digest.inspect}"
+        Celluloid::Actor[:gossiper].handle_request(self)
       end
     end
 
     class FirstResponseMessage
-      attr_reader :digest, :updates
+      attr_reader :endpoint, :digest, :updates
 
-      def initialize(digest, updates)
-        super
-        @digest, @endpoint_stat = digest, updates
+      def initialize(endpoint, digest, updates)
+        @endpoint = endpoint
+        @digest, @updates = digest, updates
       end
 
       def dispatch
-        puts "received #{self.class.name}: #{digest.inspect} #{updates.inspect}"
+        #puts "received #{self.class.name}: #{digest.inspect} #{updates.inspect}"
+        Celluloid::Actor[:gossiper].handle_first_response(self)
       end
     end
     
@@ -31,12 +32,12 @@ module DCell
       attr_reader :updates
 
       def initialize(updates)
-        super
         @updates = updates
       end
 
       def dispatch
-        puts "received #{self.class.name}: #{updates.inspect}"
+        #puts "received #{self.class.name}: #{updates.inspect}"
+        Celluloid::Actor[:gossiper].handle_second_response(self)
       end
     end
   end

@@ -47,6 +47,8 @@ module DCell
       attr_reader :addr
       attr_reader :timestamp
       attr_reader :attributes
+      attr_reader :max_version_seen
+      attr_reader :detector
 
       #TODO add transitions that notify
       # default_state :dead
@@ -67,7 +69,7 @@ module DCell
 
       def alive?
         @alive
-        state == :alive
+        #state == :alive
       end
 
       def mark_alive

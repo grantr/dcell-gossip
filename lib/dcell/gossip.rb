@@ -14,11 +14,13 @@ require 'dcell/gossip/gossiper'
 module DCell
   module Gossip
     DEFAULT_PORT = 7787
-    @config_lock = Mutex.new
 
     class << self
+      attr_accessor :addr
 
-      def setup(options = {})
+      def setup(addr)
+        @addr = addr
+        
       end
 
       def run
@@ -32,6 +34,7 @@ module DCell
 
     class Group < Celluloid::Group
       supervise Gossiper, :as => :gossiper
+      supervise Server
     end
   end
 end

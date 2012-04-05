@@ -3,8 +3,8 @@ module DCell
     class Server
       include Celluloid::ZMQ
 
-      def initialize(addr)
-        @addr   = addr
+      def initialize
+        @addr   = Gossip.addr
         @socket = PullSocket.new
 
         begin
@@ -34,7 +34,7 @@ module DCell
         end
 
         begin
-          @gossiper.handle_message(message)
+          message.dispatch
         rescue Exception => ex
           Celluloid::Logger.crash("DCell::Server: message dispatch failed", ex)
         end

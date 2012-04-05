@@ -10,24 +10,21 @@ module DCell
       attr_reader :addr
       attr_accessor :me, :peers, :seeds
 
-      def initialize(addr, options = {})
-        @gossip_interval = options[:gossip_interval] || DEFAULT_GOSSIP_INTERVAL
-        @addr = addr
-        @me = Peer.new(addr)
-        @server = Server.new(addr)
-        @peers = {}
-        @seeds = options[:seeds] || [] #TODO create peers for seeds
+      def initialize
+        @gossip_interval = DEFAULT_GOSSIP_INTERVAL
+        @addr = Gossip.addr
+        @me = Peer.new(@addr)
+        @peers = { @addr => @me }
+        @seeds = [] #TODO create peers for seeds
         @scuttle = Scuttle.new(@me, @peers)
+
+        run!
       end
 
       def run
         @me.beat_heart
         gossip
         @gossip_timer = after(gossip_interval) { run }
-      end
-
-      def stop
-        @gossip_timer.cancel if @gossip_timer
       end
 
       def gossip
@@ -43,15 +40,11 @@ module DCell
       end
 
       def live_peers
-        @peers.collect { |addr, peer| peer if peer.alive? }
+        @peers.collect { |addr, peer| peer if peer.alive? && addr != @addr }.compact
       end
 
       def dead_peers
-        @peers.collect { |addr, peer| peer unless peer.alive? }
-      end
-
-      def all_peers
-        @peers.values + @me
+        @peers.collect { |addr, peer| peer if !peer.alive? && addr != @addr }.compact
       end
 
       def gossip_to_live?
@@ -71,25 +64,23 @@ module DCell
       end
 
       def gossip_to(peer)
-        peer.send_message RequestMessage.new(digest)
+        #puts "sending to #{peer.addr}: #{@scuttle.digest.inspect}"
+        peer.send_message RequestMessage.new(@addr, @scuttle.digest)
       end
 
-      def handle_message(message)
-        case message.class #TODO yuck!
-        when RequestMessage
-          deltas, requests, new_peers = @scuttle.scuttle(message.digest)
-          handle_new_peers(new_peers)
-          FirstResponseMessage.new(requests, deltas)
-          #TODO reply: need source peer
-        when FirstResponseMessage
-          @scuttle.update_known_state(message.updates)
-          SecondResponseMessage.new(@scuttle.fetch_deltas(message.digest))
-          #TODO reply: need source peer
+      def handle_request(message)
+        deltas, requests, new_peers = @scuttle.scuttle(message.digest)
+        handle_new_peers(new_peers)
+        @peers[message.endpoint].send_message(FirstResponseMessage.new(@addr, requests, deltas))
+      end
 
+      def handle_first_response(message)
+        @scuttle.update_known_state(message.updates)
+        @peers[message.endpoint].send_message(SecondResponseMessage.new(@scuttle.fetch_deltas(message.digest)))
+      end
 
-        when SecondResponseMessage
-          @scuttle.update_known_state(message.updates)
-        end
+      def handle_second_response(message)
+        @scuttle.update_known_state(message.updates)
       end
 
       def handle_new_peers(new_peers)
