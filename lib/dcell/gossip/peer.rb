@@ -2,7 +2,7 @@ module DCell
   module Gossip
     class Peer
       include Celluloid::ZMQ
-      # include Celluloid::FSM
+      include Celluloid::FSM
 
       #TODO can the socket from this class be aggregated into Peers?
       module Messaging
@@ -52,8 +52,13 @@ module DCell
       attr_reader :detector
 
       #TODO add transitions that notify
-      # default_state :dead
-      # state :alive
+      default_state :dead
+      state :alive do
+        Celluloid::Logger.info "#{address} is alive."
+      end
+      state :dead do 
+        Celluloid::Logger.info "#{address} is dead."
+      end
 
       def initialize(address)
         @address = address
@@ -64,23 +69,19 @@ module DCell
         
         @attributes = {}
 
-        # attach self #TODO stack error
-        @alive = false
+        attach self
       end
 
       def alive?
-        @alive
-        #state == :alive
+        state == :alive
       end
 
       def mark_alive
-        @alive = true
-        # transition :alive
+        transition :alive
       end
 
       def mark_dead
-        @alive = false
-        # transition :dead
+        transition :dead
       end
 
       #TODO why is @heart_beat_version a separate variable?
