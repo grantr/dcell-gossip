@@ -13,14 +13,12 @@ require 'dcell/gossip/gossiper'
 
 module DCell
   module Gossip
-    DEFAULT_PORT = 7787
-
     class << self
-      attr_accessor :addr
+      attr_accessor :addr, :seeds
 
-      def setup(addr)
+      def setup(addr, options={})
         @addr = addr
-        
+        @seeds = Array(options[:seeds])
       end
 
       def run

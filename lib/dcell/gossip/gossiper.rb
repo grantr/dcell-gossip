@@ -15,7 +15,8 @@ module DCell
         @addr = Gossip.addr
         @me = Peer.new(@addr)
         @peers = { @addr => @me }
-        @seeds = [] #TODO create peers for seeds
+        @seeds = Gossip.seeds
+        @seeds.each { |s| @peers[s] = Peer.new(s) }
         @scuttle = Scuttle.new(@me, @peers)
 
         run!
