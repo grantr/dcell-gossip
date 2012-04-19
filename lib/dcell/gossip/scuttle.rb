@@ -13,8 +13,8 @@ module DCell
       end
 
       def digest
-        @peers.each.inject({}) do |digest, (addr, peer)|
-          digest[addr] = peer.max_version_seen
+        @peers.each.inject({}) do |digest, (address, peer)|
+          digest[address] = peer.max_version_seen
           digest
         end
       end
@@ -24,16 +24,16 @@ module DCell
         requests = {}
         new_peers = []
         
-        digest.each do |addr, digest_version|
-          if !@peers.include?(addr)
-            requests[addr] = 0
-            new_peers << addr
+        digest.each do |address, digest_version|
+          if !@peers.include?(address)
+            requests[address] = 0
+            new_peers << address
           else
-            peer = @peers[addr]
+            peer = @peers[address]
             if peer.max_version_seen > digest_version
-              deltas_with_peer << [addr, peer.deltas_after_version(digest_version)]
+              deltas_with_peer << [address, peer.deltas_after_version(digest_version)]
             elsif peer.max_version_seen < digest_version
-              requests[addr] = peer.max_version_seen
+              requests[address] = peer.max_version_seen
             end
           end
         end
@@ -43,9 +43,9 @@ module DCell
 
         #TODO this should really be building objects not hashes and arrays
         deltas = []
-        deltas_with_peer.each do |addr, peer_deltas|
+        deltas_with_peer.each do |address, peer_deltas|
           peer_deltas.each do |key, value, version|
-            deltas << [addr, key, value, version]
+            deltas << [address, key, value, version]
           end
         end
 
@@ -53,17 +53,17 @@ module DCell
       end
 
       def update_known_state(deltas)
-        deltas.each do |addr, key, value, version|
-          @peers[addr].update_with_delta(key, value, version)
+        deltas.each do |address, key, value, version|
+          @peers[address].update_with_delta(key, value, version)
         end
       end
 
       def fetch_deltas(requests)
         deltas = []
-        requests.each do |addr, version|
-          peer_deltas = @peers[addr].deltas_after_version(version)
+        requests.each do |address, version|
+          peer_deltas = @peers[address].deltas_after_version(version)
           peer_deltas.each do |key, value, version|
-            deltas << [addr, key, value, version]
+            deltas << [address, key, value, version]
           end
         end
         deltas

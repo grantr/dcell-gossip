@@ -12,7 +12,7 @@ module DCell
 
           @socket = Celluloid::ZMQ::PushSocket.new
           begin
-            @socket.connect addr
+            @socket.connect address
           rescue IOError
             @socket.close
             @socket = nil
@@ -45,7 +45,7 @@ module DCell
 
       HEARTBEAT_KEY = '__heartbeat__'
 
-      attr_reader :addr
+      attr_reader :address
       attr_reader :timestamp
       attr_reader :attributes
       attr_reader :max_version_seen
@@ -55,8 +55,8 @@ module DCell
       # default_state :dead
       # state :alive
 
-      def initialize(addr)
-        @addr = addr
+      def initialize(address)
+        @address = address
         @heart_beat_version = 0
 
         @detector = FailureDetector.new

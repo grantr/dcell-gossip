@@ -4,11 +4,11 @@ module DCell
       include Celluloid::ZMQ
 
       def initialize
-        @addr   = Gossip.addr
+        @address   = Gossip.address
         @socket = PullSocket.new
 
         begin
-          @socket.bind(@addr)
+          @socket.bind(@address)
         rescue IOError
           @socket.close
           raise

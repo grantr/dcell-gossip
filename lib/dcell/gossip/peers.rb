@@ -12,24 +12,24 @@ module DCell
         @peers ||= {}
       end
 
-      def add(addrs)
-        puts "adding: #{addrs.inspect}"
-        Array(addrs).each do |addr|
-          puts "inside loop: #{addr.inspect}"
-          peers[addr] ||= Peer.new(addr) unless peers[addr]
+      def add(addressesses)
+        puts "adding: #{addressesses.inspect}"
+        Array(addressesses).each do |address|
+          puts "inside loop: #{address.inspect}"
+          peers[address] ||= Peer.new(address) unless peers[address]
         end
       end
 
       def live
-        peers.collect { |addr, peer| peer if peer.alive? && addr != @me }.compact
+        peers.collect { |address, peer| peer if peer.alive? && address != @me }.compact
       end
 
       def dead
-        peers.collect { |addr, peer| peer if !peer.alive? && addr != @me }.compact
+        peers.collect { |address, peer| peer if !peer.alive? && address != @me }.compact
       end
       
-      def [](addr)
-        peers[addr]
+      def [](address)
+        peers[address]
       end
 
       def each(&block)

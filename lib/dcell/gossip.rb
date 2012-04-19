@@ -15,11 +15,12 @@ require 'dcell/gossip/gossiper'
 module DCell
   module Gossip
     class << self
-      attr_accessor :addr, :seeds
+      attr_accessor :address, :seeds
 
-      def setup(addr, options={})
-        @addr = addr
+      def setup(address, options={})
+        @address = address
         @seeds = Array(options[:seeds])
+        nil
       end
 
       def run

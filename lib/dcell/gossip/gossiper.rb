@@ -7,13 +7,13 @@ module DCell
       DEFAULT_GOSSIP_INTERVAL = 1
       attr_accessor :gossip_interval
 
-      attr_reader :addr
+      attr_reader :address
       attr_accessor :peers, :seeds
 
       def initialize
         @gossip_interval = DEFAULT_GOSSIP_INTERVAL
-        @addr = Gossip.addr
-        @peers = Peers.new(@addr)
+        @address = Gossip.address
+        @peers = Peers.new(@address)
         @seeds = Array(Gossip.seeds)
         @peers.add(@seeds)
         @scuttle = Scuttle.new(@me, @peers)
@@ -40,7 +40,7 @@ module DCell
       end
 
       def me
-        peers[@addr]
+        peers[@address]
       end
 
       def gossip_to_live?
@@ -56,18 +56,18 @@ module DCell
       end
 
       def check_peers
-        peers.each { |addr, peer| peer.check }
+        peers.each { |address, peer| peer.check }
       end
 
       def gossip_to(peer)
-        #puts "sending to #{peer.addr}: #{@scuttle.digest.inspect}"
-        peer.send_message RequestMessage.new(@addr, @scuttle.digest)
+        #puts "sending to #{peer.address}: #{@scuttle.digest.inspect}"
+        peer.send_message RequestMessage.new(@address, @scuttle.digest)
       end
 
       def handle_request(message)
         deltas, requests, new_peers = @scuttle.scuttle(message.digest)
         handle_new_peers(new_peers)
-        peers[message.endpoint].send_message(FirstResponseMessage.new(@addr, requests, deltas))
+        peers[message.endpoint].send_message(FirstResponseMessage.new(@address, requests, deltas))
       end
 
       def handle_first_response(message)
@@ -80,8 +80,8 @@ module DCell
       end
 
       def handle_new_peers(new_peers)
-        new_peers.each do |addr|
-          peers[addr] = Peer.new(addr) unless peers.include?(addr)
+        new_peers.each do |address|
+          peers.add(address)
         end
       end
     end
