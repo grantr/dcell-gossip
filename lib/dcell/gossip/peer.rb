@@ -4,6 +4,7 @@ module DCell
       include Celluloid::ZMQ
       # include Celluloid::FSM
 
+      #TODO can the socket from this class be aggregated into Peers?
       module Messaging
         # Obtain the node's 0MQ socket
         def socket
