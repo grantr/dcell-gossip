@@ -25,7 +25,7 @@ module DCell
         new_peers = []
         
         digest.each do |address, digest_version|
-          if !@peers.include?(address)
+          if !@peers.peers.include?(address)
             requests[address] = 0
             new_peers << address
           else
