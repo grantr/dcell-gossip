@@ -62,14 +62,17 @@ module DCell
 
       def initialize(address)
         @address = address
-        @heart_beat_version = 0
 
         @detector = FailureDetector.new
         @max_version_seen = 0
-        
-        @attributes = {}
 
+        beat_heart
+        
         attach self
+      end
+
+      def attributes
+        @attributes ||= {}
       end
 
       def alive?
@@ -84,10 +87,8 @@ module DCell
         transition :dead
       end
 
-      #TODO why is @heart_beat_version a separate variable?
       def beat_heart
-        @heart_beat_version += 1
-        update_local(HEARTBEAT_KEY, @heart_beat_version)
+        update(HEARTBEAT_KEY, (self[HEARTBEAT_KEY] || 0) + 1)
       end
 
       def update_local(k, v)
@@ -114,6 +115,10 @@ module DCell
       def set_key(key, value, n)
         @attributes[key] = [value, n]
         #TODO value changed notify
+      end
+
+      def [](key)
+        attributes.has_key?(key) ? attributes[key].first : nil
       end
 
       def deltas_after_version(lowest_version)
