@@ -46,7 +46,6 @@ module DCell
       HEARTBEAT_KEY = '__heartbeat__'
 
       attr_reader :address
-      attr_reader :timestamp
       attr_reader :attributes
       attr_reader :max_version_seen
       attr_reader :detector
