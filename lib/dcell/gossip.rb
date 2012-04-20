@@ -5,6 +5,7 @@ Celluloid::ZMQ.init
 
 require 'dcell/gossip/server'
 require 'dcell/gossip/failure_detector'
+require 'dcell/gossip/versioned_attribute'
 require 'dcell/gossip/peer'
 require 'dcell/gossip/peers'
 require 'dcell/gossip/scuttle'

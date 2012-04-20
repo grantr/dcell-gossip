@@ -90,35 +90,27 @@ module DCell
         update(HEARTBEAT_KEY, (self[HEARTBEAT_KEY] || 0) + 1)
       end
 
-      def update_local(k, v)
-        @max_version_seen += 1
-        set_key(k, v, @max_version_seen)
-      end
-
-      def update_with_delta(k, v, n)
-        if n > @max_version_seen
-          @max_version_seen = n
-          set_key(k, v, n)
-          
-          if is_heartbeat_key?(k)
-            @detector.add(Time.now.to_i)
+      def update(key, value, version=nil)
+        if version
+          if version > @max_version_seen
+            @max_version_seen = version
           end
+        else
+          @max_version_seen += 1
+        end
+
+        attributes[key] = VersionedAttribute.new(value, @max_version_seen)
+        #TODO value changed notify
+
+        if key == HEARTBEAT_KEY
+          @detector.add(Time.now.to_i)
         end
       end
 
-      def is_heartbeat_key?(key)
-        key == HEARTBEAT_KEY
+      def get(key)
+        attributes.has_key?(key) ? attributes[key].value : nil
       end
-
-      #TODO make @attributes a VersionedValue hash
-      def set_key(key, value, n)
-        @attributes[key] = [value, n]
-        #TODO value changed notify
-      end
-
-      def [](key)
-        attributes.has_key?(key) ? attributes[key].first : nil
-      end
+      alias_method :[], :get
 
       def deltas_after_version(lowest_version)
         deltas = []
