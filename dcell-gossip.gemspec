@@ -4,8 +4,8 @@ require File.expand_path('../lib/dcell/gossip/version', __FILE__)
 Gem::Specification.new do |gem|
   gem.authors       = ["Grant Rodgers"]
   gem.email         = ["grantr@gmail.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
+  gem.description   = %q{Gossip protocol using Celluloid and 0MQ}
+  gem.summary       = %q{DCell::Gossip is a gossip protocol similar to that used by Cassandra. It is intended as a masterless registry for DCell but does not require DCell to function.}
   gem.homepage      = ""
 
   gem.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
