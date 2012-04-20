@@ -8,10 +8,8 @@ require 'dcell/gossip/failure_detector'
 require 'dcell/gossip/versioned_attribute'
 require 'dcell/gossip/peer'
 require 'dcell/gossip/peers'
-require 'dcell/gossip/scuttle'
 require 'dcell/gossip/messages'
 require 'dcell/gossip/gossiper'
-
 
 module DCell
   module Gossip

@@ -16,7 +16,6 @@ module DCell
         @peers = Peers.new(@address)
         @seeds = Array(Gossip.seeds)
         @peers.add(@seeds)
-        @scuttle = Scuttle.new(@me, @peers)
 
         run!
       end
@@ -40,7 +39,7 @@ module DCell
       end
 
       def me
-        peers[@address]
+        peers[address]
       end
 
       def gossip_to_live?
@@ -60,29 +59,21 @@ module DCell
       end
 
       def gossip_to(peer)
-        #puts "sending to #{peer.address}: #{@scuttle.digest.inspect}"
-        peer.send_message RequestMessage.new(@address, @scuttle.digest)
+        peer.send_message RequestMessage.new(@address, peers.digest)
       end
 
       def handle_request(message)
-        deltas, requests, new_peers = @scuttle.scuttle(message.digest)
-        handle_new_peers(new_peers)
-        peers[message.endpoint].send_message(FirstResponseMessage.new(@address, requests, deltas))
+        deltas, requests = peers.unpack(message.digest)
+        peers[message.reply_to].send_message(FirstResponseMessage.new(address, requests, deltas))
       end
 
       def handle_first_response(message)
-        @scuttle.update_known_state(message.updates)
-        peers[message.endpoint].send_message(SecondResponseMessage.new(@scuttle.fetch_deltas(message.digest)))
+        peers.update(message.updates)
+        peers[message.reply_to].send_message(SecondResponseMessage.new(peers.fetch_deltas(message.digest)))
       end
 
       def handle_second_response(message)
-        @scuttle.update_known_state(message.updates)
-      end
-
-      def handle_new_peers(new_peers)
-        new_peers.each do |address|
-          peers.add(address)
-        end
+        peers.update(message.updates)
       end
     end
   end

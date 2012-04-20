@@ -112,14 +112,11 @@ module DCell
       end
       alias_method :[], :get
 
-      def deltas_after_version(lowest_version)
-        deltas = []
-        @attributes.each do |key, (value, version)|
-          if version > lowest_version
-            deltas << [key, value, version]
-          end
+      def deltas_after(version)
+        deltas = attributes.select do |key, attribute|
+          attribute.version > version
         end
-        deltas.sort_by { |d| d[2] }
+        Hash[deltas.sort_by { |k,a| a.version }]
       end
 
       def check

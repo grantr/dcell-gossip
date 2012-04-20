@@ -1,10 +1,10 @@
 module DCell
   module Gossip
     class RequestMessage
-      attr_reader :endpoint, :digest
+      attr_reader :reply_to, :digest
 
-      def initialize(endpoint, digest)
-        @endpoint = endpoint 
+      def initialize(reply_to, digest)
+        @reply_to = reply_to 
         @digest = digest
       end
 
@@ -15,10 +15,10 @@ module DCell
     end
 
     class FirstResponseMessage
-      attr_reader :endpoint, :digest, :updates
+      attr_reader :reply_to, :digest, :updates
 
-      def initialize(endpoint, digest, updates)
-        @endpoint = endpoint
+      def initialize(reply_to, digest, updates)
+        @reply_to = reply_to
         @digest, @updates = digest, updates
       end
 
