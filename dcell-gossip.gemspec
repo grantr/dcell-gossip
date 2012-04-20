@@ -16,4 +16,7 @@ Gem::Specification.new do |gem|
   gem.version       = Dcell::Gossip::VERSION
 
   gem.add_runtime_dependency "celluloid-zmq"
-  end
+  gem.add_development_dependency "rake"
+  gem.add_development_dependency "rspec"
+  gem.add_development_dependency "dcell" # For shared registry examples
+end
